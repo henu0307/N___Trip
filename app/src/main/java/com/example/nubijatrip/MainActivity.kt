@@ -1,29 +1,44 @@
 package com.example.nubijatrip
 
+
+import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.UiThread
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Transformations.map
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapFragment
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.util.FusedLocationSource
 import com.opencsv.CSVReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.util.*
 
 class MainActivity : FragmentActivity(), OnMapReadyCallback {
+    private lateinit var locationSource: FusedLocationSource
+    private lateinit var naverMap: NaverMap
+    companion object {
+        const val PERMISSION_REQUEST_CODE = 1000
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
+            // Permission is granted
+        } else {
+            // Permission is not granted
+            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), // 1
+                MainActivity.PERMISSION_REQUEST_CODE
+            ) // 2
+        }
+        locationSource =
+            FusedLocationSource(this, MainActivity.PERMISSION_REQUEST_CODE)
 
         val fm = supportFragmentManager
         val mapFragment = fm.findFragmentById(R.id.map_fragment) as MapFragment?
@@ -34,7 +49,20 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    fun isNumber(s: String): Boolean {
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>,
+                                            grantResults: IntArray) {
+        if (locationSource.onRequestPermissionsResult(requestCode, permissions,
+                grantResults)) {
+            if (!locationSource.isActivated) { // 권한 거부됨
+                naverMap.locationTrackingMode = LocationTrackingMode.None
+            }
+            return
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun isNumber(s: String): Boolean {
         return try {
             s.toInt()
             true
@@ -49,8 +77,14 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         val uiSettings = naverMap.uiSettings
         uiSettings.isCompassEnabled = true
         uiSettings.isScaleBarEnabled = true
+        uiSettings.isLocationButtonEnabled = true
 
-        naverMap.locationTrackingMode = LocationTrackingMode.Follow
+        naverMap.locationTrackingMode = LocationTrackingMode.Face
+        this.naverMap = naverMap
+        naverMap.locationSource = locationSource
+
+        val locationOverlay = naverMap.locationOverlay
+        locationOverlay.isVisible = true
 
         val assetManager: AssetManager = this.assets
         val inputStream: InputStream = assetManager.open("경상남도 창원시_누비자 터미널_20230407_1.csv")

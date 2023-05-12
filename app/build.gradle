@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.nubijatrip"
-        minSdk 21
+        minSdk 23
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -34,6 +34,8 @@ android {
 dependencies {
     // 네이버 지도 SDK
     implementation 'com.naver.maps:map-sdk:3.16.2'
+    //FusedLocationSource
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
     //OpenCSV
     implementation 'com.opencsv:opencsv:5.6'
 
