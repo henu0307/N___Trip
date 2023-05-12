@@ -34,6 +34,15 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+    fun isNumber(s: String): Boolean {
+        return try {
+            s.toInt()
+            true
+        } catch (ex: NumberFormatException) {
+            false
+        }
+    }
+
     @UiThread
     override fun onMapReady(naverMap: NaverMap) {
         naverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRANSIT, true)
@@ -44,24 +53,21 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
         val assetManager: AssetManager = this.assets
-        val inputStream: InputStream = assetManager.open("경상남도 창원시_누비자 터미널_20230407.csv")
+        val inputStream: InputStream = assetManager.open("경상남도 창원시_누비자 터미널_20230407_1.csv")
         val reader = CSVReader(InputStreamReader(inputStream))
         val allContent = reader.readAll().toList()
         for (content in allContent) {
-            Log.d("test", "터미널" + content[1] + "LatLng" + content[7] +" "+ content[8])
-            /*val marker = Marker()
-            marker.position = LatLng(content[7].toDouble(), content[8].toDouble())
-            marker.captionText = content[1]
-            marker.captionColor = Color.BLUE
-            marker.captionTextSize = 16f
-            marker.isHideCollidedSymbols = true
-            marker.isHideCollidedCaptions = true
-            marker.map = naverMap*/
+            if(isNumber(content[0])) {
+                val marker = Marker()
+                marker.position = LatLng(content[7].toDouble(), content[8].toDouble())
+                marker.captionText = content[1]
+                marker.captionColor = Color.BLUE
+                marker.captionTextSize = 16f
+                marker.isHideCollidedSymbols = true
+                marker.isHideCollidedCaptions = true
+                marker.map = naverMap
+            }
         }
-    }
-
-    private fun loadData() {
-
     }
 }
 
