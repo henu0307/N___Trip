@@ -10,6 +10,11 @@
         android:id="@+id/map_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.naver.maps.map.MapFragment" />
+        android:name="com.naver.maps.map.MapFragment"
+        app:navermap_latitude="35.21663989"
+        app:navermap_longitude="128.6942419"
+        app:navermap_zoom="16"
+        app:navermap_mapType="Terrain"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
