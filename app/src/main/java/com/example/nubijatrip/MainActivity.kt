@@ -1,8 +1,10 @@
 package com.example.nubijatrip
 
+import android.content.res.AssetManager
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.UiThread
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Transformations.map
@@ -12,6 +14,10 @@ import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
+import com.opencsv.CSVReader
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.util.*
 
 class MainActivity : FragmentActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,13 +43,27 @@ class MainActivity : FragmentActivity(), OnMapReadyCallback {
 
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
-        val marker = Marker()
-        marker.position = LatLng(35.21663989, 128.6942419)
-        marker.captionText = "성원중앙상가"
-        marker.captionColor = Color.BLUE
-        marker.captionTextSize = 16f
-        marker.isHideCollidedSymbols = true
-        marker.isHideCollidedCaptions = true
-        marker.map = naverMap
+        val assetManager: AssetManager = this.assets
+        val inputStream: InputStream = assetManager.open("경상남도 창원시_누비자 터미널_20230407.csv")
+        val reader = CSVReader(InputStreamReader(inputStream))
+        val allContent = reader.readAll().toList()
+        for (content in allContent) {
+            Log.d("test", "터미널" + content[1] + "LatLng" + content[7] +" "+ content[8])
+            /*val marker = Marker()
+            marker.position = LatLng(content[7].toDouble(), content[8].toDouble())
+            marker.captionText = content[1]
+            marker.captionColor = Color.BLUE
+            marker.captionTextSize = 16f
+            marker.isHideCollidedSymbols = true
+            marker.isHideCollidedCaptions = true
+            marker.map = naverMap*/
+        }
+    }
+
+    private fun loadData() {
+
     }
 }
+
+//코드 참고 : https://shwoghk14.blogspot.com/2022/06/android-read-csv-file.html
+//누비자 터미널 데이터 출처 : https://www.data.go.kr/data/15000545/fileData.do
